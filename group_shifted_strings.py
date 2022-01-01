@@ -27,14 +27,17 @@ To group strings, maintain a hashmap with keys as distances between adjacent
 characters so that "az" and "ba" both map to (25, ). The groups are then simply
 the values of the hashmap (which should be lists of strings).
 """
-def group_strings(strings):
+def group_shifted_strings(strings):
 
-    groups = {}
+    num_chars = 26
+    groupings = {}
+
+    def calculate_distances(string):
+        for idx in range(len(string)):
+            yield ord(string[idx]) - ord(string[idx - 1]) % num_chars
+
     for string in strings:
-        if len(string) == 1:
-            groups.setdefault(1, []).append(string)
-        else:
-            key = tuple((ord(string[idx + 1]) - ord(string[idx])) % 26
-                        for idx in range(len(string) - 1))
-            groups.setdefault(key, []).append(string)
-    return list(groups.values())
+        # e.g. "az" -> (25, ) and "xyz" -> (1, 1)
+        groupings.setdefault(tuple(calculate_distances(string)), []).append(string)
+
+    return list(groupings.values())

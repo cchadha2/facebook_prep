@@ -1,67 +1,74 @@
-import math
+"""
+Given the root of a binary tree, calculate the vertical order traversal of the binary tree.
 
-import heapq
+For each node at position (row, col), its left and right children will be at positions (row + 1, col - 1) and (row + 1, col + 1) respectively. The root of the tree is at (0, 0).
 
-from collections import defaultdict
+The vertical order traversal of a binary tree is a list of top-to-bottom orderings for each column index starting from the leftmost column and ending on the rightmost column. There may be multiple nodes in the same row and same column. In such a case, sort these nodes by their values.
 
+Return the vertical order traversal of the binary tree.
 
-class Node:
-
-    def __init__(self, val, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
+Constraints:
+    - Empty root is not possible
+    - Return a list of lists of integers for each column, sorted by the values and the lists are sorted by their column from left to right
 
 
-def vertical_traversal(root):
-    if not root:
-        return []
+Example:
 
-    columns = defaultdict(list)
 
-    min_column = math.inf
+                                6
+                              /   \
+                             5     2
+                           /   \ /   \
+                          4    3 1    7
 
-    # O(Nlogk) time where N is the number of nodes
-    # and k is number of elements in that column.
-    # Between O(logN) and O(N) space depending on
-    # whether the tree is balanced and O(N) space for columns.
+output = [[4], [5], [1, 3, 6], [2], [7]]
+
+
+Approach:
+    - Do an inorder traversal of the tree (O(N) time and between O(logN) and O(N) space at worst).
+    - Track the column and depth as we go and add values to a hashmap of columns: lists
+    - The output will be the values of the hashmap, sorted internally
+    - Also track the min and max column for easy iteration over the hashmap's keys
+
+O(N + W*HlogH) time and O(N) space for the hashmap.
+"""
+from math import inf
+
+
+def vertical_traverse(root):
+    """Overall O(N + W*HlogH) time and O(N) space for hashmap."""
+
+    columns = {}
+    min_column = inf
+    max_column = -inf
+
+    # O(N) time and space for dfs and columns hashmap.
     def inorder(node, column, depth):
         if not node:
             return
 
-        nonlocal min_column
-        min_column = min(min_column, column)
-
         inorder(node.left, column - 1, depth + 1)
 
-        heapq.heappush(columns[column], (depth, node.val))
+        nonlocal min_column, max_column
+        min_column = min(column, min_column)
+        max_column = max(column, max_column)
+
+        columns.setdefault(column, []).append((depth, node.val))
 
         inorder(node.right, column + 1, depth + 1)
 
 
-    # column = {-2: [(2, 4)], -1: [(1, 2)], 0: [(0, 1), (2, 5), (2, 6)], 1: [(1, 3)], 2: [(2, 7)]}
     inorder(root, 0, 0)
 
-    # O(N) space where N is number of nodes.
     output = []
-    # O(c * klogk) time where c is number of columns and k is number of elements in column.
-    while min_column in columns:
+    # O(W*HlogH) time and O(H) space for sort.
+    for column in range(min_column, max_column + 1):
+        columns[column].sort()
+        for idx, pair in enumerate(columns[column]):
+            depth, value = pair
+            columns[column][idx] = value
 
-        column = []
-        # O(klogk) time where k is number of elements in column.
-        for _ in range(len(columns[min_column])):
-            column.append(heapq.heappop(columns[min_column])[1])
+        output.append(columns[column])
 
-        output.append(column)
 
-        min_column += 1
-
-    # O(N * logk + c * klogk) time and O(N) space.
-    # = O((N + ck)logk) time and O(N) space.
-    # but ck = N so O(Nlogk) time.
     return output
-
-
-
-
-    
