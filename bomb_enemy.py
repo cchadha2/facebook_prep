@@ -1,6 +1,6 @@
 class Solution:
     def maxKilledEnemies(self, grid: List[List[str]]) -> int:
-        """O(M^2N^2) time and O(MN) space."""
+        """O(MN) time and O(MN) space."""
         
         m, n = len(grid), len(grid[0])
         # O(MN) time and space.
@@ -8,7 +8,9 @@ class Solution:
         cols = [row.copy() for row in grid]
         maximum = 0
         
-        # O(M^2N^2) time and O(1) space.
+        # O(MN) time and O(1) space.
+        # This is because we don't repeat calculations
+        # for rows and columns unless there is a wall.
         for row in range(m):
             for col in range(n):
                 if grid[row][col] == "0":
