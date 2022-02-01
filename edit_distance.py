@@ -17,8 +17,9 @@ class Solution:
         # ros 3  3  2  2   2     3
         
         
-        # If letters are equal, min distance = dist[row - 1][col - 1]
-        # Else distance = min(dist[row - 1][col], dist[row][col - 1]) + 1
+        # If letters are equal, min distance = dist[row - 1][col - 1] as dist[row][col - 1] >= dist[row - 1][col - 1]
+        # and dist[row - 1][col] >= dist[row - 1][col - 1] always.
+        # Else distance = min(dist[row - 1][col], dist[row][col - 1], dist[row - 1][col - 1]) + 1
         
         dist = [[None] * (len(word1) + 1) for _ in range(len(word2) + 1)]
         for row in range(len(dist)):
